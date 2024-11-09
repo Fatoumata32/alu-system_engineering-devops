@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This script installs and configures Nginx to serve "Holberton School" at the root URL
+# This script installs and configures Nginx to serve "Holberton School" at the root URL on port 80
 
 # Update the package list and install Nginx
 sudo apt-get update -y && sudo apt-get install -y nginx
@@ -13,11 +13,11 @@ fi
 # Create a custom HTML page with the content "Holberton School" at the root
 echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
 
-# Ensure Nginx is configured to listen on port 80 and properly serve the page
+# Configure Nginx to listen on port 80 and properly serve the page
 sudo sed -i 's/listen 80 default_server;/listen 80 default_server;/' /etc/nginx/sites-available/default
 sudo sed -i 's/listen \[::\]:80 default_server;/listen [::]:80 default_server;/' /etc/nginx/sites-available/default
 
-# Restart Nginx to apply the configuration
+# Restart Nginx using service (not systemctl) to apply the configuration
 sudo service nginx restart
 
 # Allow HTTP traffic through the firewall (if `ufw` is installed)
