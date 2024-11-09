@@ -1,26 +1,28 @@
 #!/usr/bin/env bash
-# Bash script to install Nginx and configure it to serve "Holberton School" at root
+# This script installs and configures Nginx to serve "Holberton School" at the root URL
 
-# Update package lists and install Nginx
+# Update the package list and install Nginx
 sudo apt-get update -y
 sudo apt-get install -y nginx
 
-# Create a custom HTML page with the content "Holberton School"
+# Create a custom HTML page with the content "Holberton School" at the root
 echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
 
-# Ensure Nginx is configured to serve on port 80
-sudo sed -i 's/listen \[::\]:80 default_server;/listen [::]:80 default_server;/' /etc/nginx/sites-available/default
+# Ensure Nginx is configured to listen on port 80 and properly serve the page
 sudo sed -i 's/listen 80 default_server;/listen 80 default_server;/' /etc/nginx/sites-available/default
+sudo sed -i 's/listen \[::\]:80 default_server;/listen [::]:80 default_server;/' /etc/nginx/sites-available/default
 
-# Restart Nginx to apply configuration changes
+# Restart Nginx to apply the configuration
 sudo service nginx restart
 
-# Verify the content at root
-curl -s http://localhost | grep "Holberton School" > /dev/null
+# Wait for Nginx to start properly
+sleep 2
 
+# Verify that the page at root contains "Holberton School"
+curl -s http://localhost | grep "Holberton School" > /dev/null
 if [ $? -eq 0 ]; then
-    echo "Nginx is serving 'Holberton School' at the root page."
+    echo "Nginx is correctly serving 'Holberton School' at the root page."
 else
-    echo "Error: 'Holberton School' not found on the root page."
+    echo "Error: 'Holberton School' not found in the root page."
     exit 1
 fi
