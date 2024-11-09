@@ -1,34 +1,41 @@
 #!/usr/bin/env bash
 # This script installs and configures Nginx to serve "Holberton School" at the root URL on port 80
 
-# Update the package list and install Nginx
+# Update package list and install Nginx
 sudo apt-get update -y && sudo apt-get install -y nginx
 
-# Check if Nginx was installed successfully
+# Verify if Nginx is installed
 if ! command -v nginx > /dev/null; then
     echo "Nginx installation failed."
     exit 1
 fi
 
-# Create a custom HTML page with the content "Holberton School" at the root
+# Create HTML page with "Holberton School" content
 echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
 
-# Configure Nginx to listen on port 80 and properly serve the page
+# Configure Nginx to listen on port 80
 sudo sed -i 's/listen 80 default_server;/listen 80 default_server;/' /etc/nginx/sites-available/default
 sudo sed -i 's/listen \[::\]:80 default_server;/listen [::]:80 default_server;/' /etc/nginx/sites-available/default
 
-# Restart Nginx using service (not systemctl) to apply the configuration
+# Restart Nginx using `service` instead of `systemctl`
 sudo service nginx restart
 
-# Allow HTTP traffic through the firewall (if `ufw` is installed)
+# Allow HTTP traffic through the firewall
 if command -v ufw > /dev/null; then
     sudo ufw allow 'Nginx HTTP'
 fi
 
-# Wait for Nginx to start properly
+# Wait for Nginx to start
 sleep 2
 
-# Verify that the page at root contains "Holberton School"
+# Check if Nginx is returning a 200 status code
+status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost)
+if [ "$status_code" -ne 200 ]; then
+    echo "Error: Nginx did not return a 200 status code. Status code: $status_code"
+    exit 1
+fi
+
+# Verify content on root page
 if curl -s http://localhost | grep -q "Holberton School"; then
     echo "Nginx is correctly serving 'Holberton School' at the root page."
 else
