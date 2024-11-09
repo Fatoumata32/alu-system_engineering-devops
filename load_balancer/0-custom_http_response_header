@@ -6,8 +6,11 @@ sudo apt-get -y update
 sudo apt-get -y install nginx
 ufw allow 'Nginx HTTP'
 
+# Ensure HOSTNAME is set
+HOSTNAME=$(hostname)
+
 # Set custom HTML for the homepage
-sudo echo "Holberton School" | sudo tee /var/www/html/index.html
+echo "Holberton School" | sudo tee /var/www/html/index.html
 
 # Redirection configuration
 replacement="server_name _;\\
@@ -19,9 +22,9 @@ echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
 page="listen 80 default_server;\\n\\terror_page 404 /404.html;\\n\\tlocation = /404.html {\\n\\t\\troot /var/www/html;\\n\\t\\tinternal;\\n\\t}"
 sudo sed -i "s|listen 80 default_server;|$page|" /etc/nginx/sites-available/default
 
-# Creating an HTTP response header
-sudo sed -i "/server_name _/a add_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
+# Adding HTTP response header
+sudo sed -i "/server_name _/a add_header X-Served-By \"$HOSTNAME\";" /etc/nginx/sites-available/default
 
-# Test and restart Nginx to apply changes
+# Test and reload Nginx
 sudo nginx -t
-sudo service nginx restart
+sudo service nginx reload
