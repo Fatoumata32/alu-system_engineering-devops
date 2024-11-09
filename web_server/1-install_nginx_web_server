@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Bash script to install Nginx web server and configure custom HTML page
 
 # Update package lists and install Nginx
 sudo apt-get update
