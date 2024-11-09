@@ -1,33 +1,41 @@
 #!/usr/bin/env bash
-# This script installs and configures HAProxy on the lb-01 server and directs traffic to web-01 and web-02.
+# This script installs and configures HAProxy on the lb-01 server to distribute traffic to web-01 and web-02 using a round-robin algorithm.
 
-# Install HAProxy
+# Set the correct hostname for the lb-01 server
+HOSTNAME="lb-01"  # Change this if needed, this is the load balancer hostname
+sudo hostnamectl set-hostname $HOSTNAME
+
+# Update and install HAProxy
 sudo apt-get -y update
 sudo apt-get -y install haproxy
 
-# Configure HAProxy
-server_config=\
-"
-frontend skomaiya_frontend
+# Configure HAProxy to use round-robin and send traffic to web-01 and web-02
+server_config="
+frontend lb_frontend
     bind *:80
     mode http
-    default_backend skomaiya_backend
-backend skomaiya_backend
+    default_backend lb_backend
+
+backend lb_backend
     balance roundrobin
-    server web-01 52.204.120.217:80 check
-    server web-02 54.234.195.24:80 check
+    server web-01 web-01:80 check
+    server web-02 web-02:80 check
 "
+
+# Append HAProxy configuration to the main config file
 echo "$server_config" | sudo tee -a /etc/haproxy/haproxy.cfg
 
-# Enable HAProxy on startup
+# Enable HAProxy to start on boot
 echo "ENABLED=1" | sudo tee -a /etc/default/haproxy
 
-# Check the HAProxy configuration
+# Test the HAProxy configuration file for syntax errors
 sudo haproxy -c -f /etc/haproxy/haproxy.cfg
 
-# Reload HAProxy service
+# Reload HAProxy to apply the new configuration
 sudo service haproxy reload
 
-# Confirm completion
-echo "HAProxy configured to direct traffic to servers web-01 and web-02"
+# Confirm HAProxy is working and sending traffic to web-01 and web-02
+echo "HAProxy configured to distribute traffic to web-01 and web-02 using round-robin."
 
+# Output the current hostname of the server to verify it was set correctly
+echo "Current hostname: $(hostname)"
